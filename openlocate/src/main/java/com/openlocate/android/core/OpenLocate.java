@@ -23,21 +23,30 @@ package com.openlocate.android.core;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.view.View;
 
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.gcm.GcmNetworkManager;
+import com.google.android.gms.gcm.PeriodicTask;
+import com.google.android.gms.gcm.Task;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -57,11 +66,14 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class OpenLocate implements OpenLocateLocationTracker {
+public class OpenLocate implements OpenLocateLocationTracker, GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener  {
 
     private static final int LOCATION_PERMISSION_REQUEST = 1001;
 
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+
+    private final static String LOCATION_DISPATCH_TAG = OpenLocate.class.getCanonicalName() + ".location_dispatch_task";
 
     private static OpenLocate sharedInstance = null;
     private static final String TAG = OpenLocate.class.getSimpleName();
@@ -69,12 +81,21 @@ public class OpenLocate implements OpenLocateLocationTracker {
     private Context context;
     private ArrayList<Endpoint> endpoints;
     private Configuration configuration;
+    private AdvertisingIdClient.Info advertisingIdInfo;
 
     private FusedLocationProviderClient fusedLocationProviderClient;
 
     private long locationInterval = Constants.DEFAULT_LOCATION_INTERVAL_SEC;
     private long transmissionInterval = Constants.DEFAULT_TRANSMISSION_INTERVAL_SEC;
     private LocationAccuracy accuracy = Constants.DEFAULT_LOCATION_ACCURACY;
+
+    private static final long UPDATE_INTERVAL = 10 * 1000;
+    private static final long FASTEST_UPDATE_INTERVAL = UPDATE_INTERVAL / 2;
+    private static final long MAX_WAIT_TIME = UPDATE_INTERVAL * 3;
+
+    private GoogleApiClient mGoogleApiClient;
+    private LocationRequest mLocationRequest;
+    private GcmNetworkManager networkManager;
 
     public static final class Configuration implements Parcelable {
 
@@ -596,23 +617,28 @@ public class OpenLocate implements OpenLocateLocationTracker {
     }
 
     private void onFetchAdvertisingInfo(AdvertisingIdClient.Info info) {
-        Intent intent = new Intent(context, LocationService.class);
 
-        intent.putParcelableArrayListExtra(Constants.ENDPOINTS_KEY, endpoints);
+        advertisingIdInfo = info;
+        buildGoogleApiClient();
+        networkManager = GcmNetworkManager.getInstance(context);
 
-        updateLocationConfigurationInfo(intent);
-        updateFieldsConfigurationInfo(intent);
-
-        if (info != null) {
-            updateAdvertisingInfo(intent, info.getId(), info.isLimitAdTrackingEnabled());
-        }
-
-        try {
-            context.startService(intent);
-            setStartedPreferences();
-        } catch (SecurityException e) {
-            Log.e(TAG, "Could not start location service");
-        }
+//        Intent intent = new Intent(context, LocationService.class);
+//
+//        intent.putParcelableArrayListExtra(Constants.ENDPOINTS_KEY, endpoints);
+//
+//        updateLocationConfigurationInfo(intent);
+//        updateFieldsConfigurationInfo(intent);
+//
+//        if (info != null) {
+//            updateAdvertisingInfo(intent, info.getId(), info.isLimitAdTrackingEnabled());
+//        }
+//
+//        try {
+//            context.startService(intent);
+//            setStartedPreferences();
+//        } catch (SecurityException e) {
+//            Log.e(TAG, "Could not start location service");
+//        }
     }
 
     private void setStartedPreferences() {
@@ -671,8 +697,10 @@ public class OpenLocate implements OpenLocateLocationTracker {
     @Override
     public void stopTracking() {
         SharedPreferenceUtils.getInstance(context).setValue(Constants.TRACKING_STATUS, false);
-        Intent intent = new Intent(context, LocationService.class);
-        context.stopService(intent);
+        //Intent intent = new Intent(context, LocationService.class);
+        //context.stopService(intent);
+        removeLocationUpdates();
+        unschedulePeriodicTasks();
     }
 
     @Override
@@ -682,6 +710,14 @@ public class OpenLocate implements OpenLocateLocationTracker {
 
     public long getLocationInterval() {
         return locationInterval;
+    }
+
+    public OpenLocate.Configuration getConfiguration() {
+        return configuration;
+    }
+
+    public AdvertisingIdClient.Info getAdvertisingIdInfo() {
+        return advertisingIdInfo;
     }
 
     public void setLocationInterval(long locationInterval) {
@@ -723,5 +759,118 @@ public class OpenLocate implements OpenLocateLocationTracker {
         Intent intent = new Intent(Constants.LOCATION_ACCURACY_CHANGED);
         intent.putExtra(Constants.LOCATION_ACCURACY_KEY, accuracy);
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+    }
+
+    private void buildGoogleApiClient() {
+        if (mGoogleApiClient != null) {
+            return;
+        }
+        mGoogleApiClient = new GoogleApiClient.Builder(context)
+                .addConnectionCallbacks(this)
+                .addApi(LocationServices.API)
+                .build();
+        createLocationRequest();
+        mGoogleApiClient.connect();
+    }
+
+    private void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+
+        mLocationRequest.setInterval(UPDATE_INTERVAL);
+
+        // Sets the fastest rate for active location updates. This interval is exact, and your
+        // application will never receive updates faster than this value.
+        mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        // Sets the maximum time when batched location updates are delivered. Updates may be
+        // delivered sooner than this interval.
+        mLocationRequest.setMaxWaitTime(MAX_WAIT_TIME);
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        Log.i(TAG, "GoogleApiClient connected");
+
+        requestLocationUpdates();
+        scheduleDispatchLocationService();
+        setStartedPreferences();
+    }
+
+    private PendingIntent getPendingIntent() {
+        Intent intent = new Intent(context, LocationUpdatesBroadcastReceiver.class);
+        intent.setAction(LocationUpdatesBroadcastReceiver.ACTION_PROCESS_UPDATES);
+        return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        final String text = "Connection suspended";
+        Log.w(TAG, text + ": Error code: " + i);
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        final String text = "Exception while connecting to Google Play services";
+        Log.w(TAG, text + ": " + connectionResult.getErrorMessage());
+    }
+
+    public void requestLocationUpdates() {
+        try {
+            Log.i(TAG, "Starting location updates");
+            LocationServices.FusedLocationApi.requestLocationUpdates(
+                    mGoogleApiClient, mLocationRequest, getPendingIntent());
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void removeLocationUpdates() {
+        Log.i(TAG, "Removing location updates");
+        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient,
+                getPendingIntent());
+    }
+
+    private void scheduleDispatchLocationService() {
+
+        if (endpoints == null) {
+            return;
+        }
+
+        if (networkManager == null) {
+            Log.w(TAG, "Network Manager is null");
+            return;
+        }
+
+        Bundle bundle = new Bundle();
+        try {
+            bundle.putString(Constants.ENDPOINTS_KEY, OpenLocate.Endpoint.toJson(endpoints));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        PeriodicTask task = new PeriodicTask.Builder()
+                .setExtras(bundle)
+                .setService(DispatchLocationService.class)
+                .setPeriod(getTransmissionInterval())
+                .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
+                .setRequiresCharging(false)
+                .setPersisted(true)
+                .setUpdateCurrent(true)
+                .setTag(LOCATION_DISPATCH_TAG)
+                .build();
+
+        try {
+            networkManager.schedule(task);
+        } catch (IllegalArgumentException e) {
+            Log.e(TAG, "Google Play Services is not up to date.");
+            removeLocationUpdates();
+        }
+    }
+
+    private void unschedulePeriodicTasks() {
+        if (networkManager != null) {
+            networkManager.cancelAllTasks(DispatchLocationService.class);
+        }
     }
 }
