@@ -21,7 +21,9 @@
  */
 package com.openlocate.android.core;
 
+import android.database.sqlite.SQLiteFullException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.GcmTaskService;
@@ -37,6 +39,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 final public class DispatchLocationService extends GcmTaskService {
+
+    private final static String TAG = DispatchLocationService.class.getSimpleName();
 
     public static final long EXPIRED_PERIOD = TimeUnit.DAYS.toMillis(10);
 
@@ -83,8 +87,14 @@ final public class DispatchLocationService extends GcmTaskService {
                 min = expired;
             }
 
-            dataSource.deleteBefore(min);
-            dataSource.close();
+            try {
+                dataSource.deleteBefore(min);
+            } catch (SQLiteFullException exception) {
+                Log.w(TAG, "Database is full. Cannot purge data.");
+            } finally {
+                dataSource.close();
+            }
+
         }
 
         return GcmNetworkManager.RESULT_SUCCESS;

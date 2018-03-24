@@ -28,6 +28,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.sqlite.SQLiteFullException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
 import android.os.Build;
@@ -321,7 +322,10 @@ final class LocationServiceHelper {
 
     private void unschedulePeriodicTasks() {
         if (networkManager != null) {
-            networkManager.cancelAllTasks(DispatchLocationService.class);
+            try {
+                networkManager.cancelAllTasks(DispatchLocationService.class);
+            } catch (IllegalArgumentException e) {
+            }
         }
     }
 
@@ -362,13 +366,17 @@ final class LocationServiceHelper {
 
             Log.v(TAG, location.toString());
 
-            locations.add(
-                    OpenLocateLocation.from(
-                            location,
-                            advertisingInfo,
-                            InformationFieldsFactory.collectInformationFields(context, configuration)
-                    )
-            );
+            try {
+                locations.add(
+                        OpenLocateLocation.from(
+                                location,
+                                advertisingInfo,
+                                InformationFieldsFactory.collectInformationFields(context, configuration)
+                        )
+                );
+            } catch (SQLiteFullException exception) {
+                Log.w(TAG, "Database is full. Cannot add data.");
+            }
 
             Log.v(TAG, "COUNT - " + locations.size());
         }
