@@ -31,6 +31,7 @@ final class LocationDatabase implements LocationDataSource {
 
     LocationDatabase(SQLiteOpenHelper helper) {
         this.helper = helper;
+        this.helper.getWritableDatabase().enableWriteAheadLogging();
     }
 
     @Override
