@@ -94,7 +94,6 @@ final public class DispatchLocationService extends GcmTaskService {
             } finally {
                 dataSource.close();
             }
-
         }
 
         return GcmNetworkManager.RESULT_SUCCESS;

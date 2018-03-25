@@ -186,6 +186,7 @@ final class LocationServiceHelper {
 
     @SuppressWarnings("unchecked")
     private boolean setValues(Intent intent) {
+
         OpenLocate.Configuration configuration = intent.getExtras().getParcelable(Constants.INTENT_CONFIGURATION);
         ArrayList<OpenLocate.Endpoint> endpoints = intent.getParcelableArrayListExtra(Constants.ENDPOINTS_KEY);
         String adId = intent.getStringExtra(Constants.ADVERTISING_ID_KEY);
@@ -203,6 +204,10 @@ final class LocationServiceHelper {
         setLocationRequestIntervalInSecs(intent);
         setTransmissionIntervalInSecs(intent);
         setLocationAccuracy(intent);
+
+        if (configuration == null || endpoints == null || advertisingInfo == null) {
+            return false;
+        }
 
         return true;
     }

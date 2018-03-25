@@ -34,6 +34,7 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
@@ -634,11 +635,12 @@ public class OpenLocate implements OpenLocateLocationTracker, GoogleApiClient.Co
 //        }
 //
 //        try {
-//            context.startService(intent);
+//            ContextCompat.startForegroundService(context, intent);
 //            setStartedPreferences();
 //        } catch (SecurityException e) {
 //            Log.e(TAG, "Could not start location service");
 //        }
+
     }
 
     private void setStartedPreferences() {
