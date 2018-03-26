@@ -62,6 +62,8 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
                             locationsDatabase.add(olLocation);
                         }
 
+                        locationsDatabase.close();
+
                     }
                 } catch (IllegalStateException e) {
                     Log.w(TAG, "Could not getInstance() of OL.");
