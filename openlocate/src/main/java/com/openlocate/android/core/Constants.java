@@ -26,7 +26,7 @@ final class Constants {
     // Default Location constants
     static final long DEFAULT_LOCATION_INTERVAL_SEC = 5 * 60;
     static final long DEFAULT_FAST_LOCATION_INTERVAL_SEC = 1 * 60;
-    static final long DEFAULT_TRANSMISSION_INTERVAL_SEC = 2 * 60;
+    static final long DEFAULT_TRANSMISSION_INTERVAL_SEC = 3 * 60 * 60;
     static final long SERVICE_CHECK_INTERVAL_MSEC = 5 * 60 * 1000;
     static final LocationAccuracy DEFAULT_LOCATION_ACCURACY = LocationAccuracy.HIGH;
 

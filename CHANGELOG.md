@@ -2,6 +2,14 @@
 
 `OpenLocate-Android` adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.1.11](https://github.com/OpenLocate/openlocate-ios/tag/1.1.11)
+
+#### Fixed
+
+- Add fix SQL lite crash when device storage is full.
+- Add fix for crash when accessing DB from multiple processes.
+- Add fix for crash when shutting down Google Place Services Network Manager on some Android devices.
+
 ## [1.1.10](https://github.com/OpenLocate/openlocate-ios/tag/1.1.10)
 
 #### Fixed

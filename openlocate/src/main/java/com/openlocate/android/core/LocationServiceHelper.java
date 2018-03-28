@@ -85,7 +85,7 @@ final class LocationServiceHelper {
     }
 
     void onCreate() {
-        locations = new LocationDatabase(new DatabaseHelper(context));
+        locations = new LocationDatabase(DatabaseHelper.getInstance(context));
         networkManager = GcmNetworkManager.getInstance(context);
         alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 

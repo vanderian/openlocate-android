@@ -47,7 +47,7 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
                     if (result != null && configuration != null && advertisingIdInfo != null) {
                         List<Location> locations = result.getLocations();
 
-                        LocationDatabase locationsDatabase = new LocationDatabase(new DatabaseHelper(context));
+                        LocationDatabase locationsDatabase = new LocationDatabase(DatabaseHelper.getInstance(context));
 
                         for (Location location : locations) {
 

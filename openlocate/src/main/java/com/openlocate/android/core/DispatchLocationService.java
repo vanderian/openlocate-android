@@ -46,7 +46,7 @@ final public class DispatchLocationService extends GcmTaskService {
 
     @Override
     public int onRunTask(TaskParams taskParams) {
-        SQLiteOpenHelper helper = new DatabaseHelper(this);
+        SQLiteOpenHelper helper = DatabaseHelper.getInstance(this);
         LocationDataSource dataSource = new LocationDatabase(helper);
         HttpClient httpClient = new HttpClientImpl();
 

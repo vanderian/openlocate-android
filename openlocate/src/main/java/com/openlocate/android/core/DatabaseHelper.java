@@ -24,13 +24,22 @@ package com.openlocate.android.core;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 final class DatabaseHelper extends SQLiteOpenHelper {
 
+    private static DatabaseHelper instance;
     private static final String DATABASE_NAME = "OpenLocate.db";
     private static final int DATABASE_VERSION = 2;
 
-    DatabaseHelper(Context context) {
+    public static synchronized DatabaseHelper getInstance(Context context) {
+        if (instance == null) {
+            instance = new DatabaseHelper(context.getApplicationContext());
+        }
+        return instance;
+    }
+
+    private DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
