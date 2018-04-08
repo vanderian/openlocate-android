@@ -92,7 +92,7 @@ public class OpenLocate implements OpenLocateLocationTracker, GoogleApiClient.Co
 
     private static final long UPDATE_INTERVAL = 5 * 60 * 1000;
     private static final long FASTEST_UPDATE_INTERVAL = UPDATE_INTERVAL / 2;
-    private static final long MAX_WAIT_TIME = UPDATE_INTERVAL * 3;
+    private static final long MAX_WAIT_TIME = UPDATE_INTERVAL * 12;
 
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
@@ -783,7 +783,7 @@ public class OpenLocate implements OpenLocateLocationTracker, GoogleApiClient.Co
         // Sets the fastest rate for active location updates. This interval is exact, and your
         // application will never receive updates faster than this value.
         mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
 
         // Sets the maximum time when batched location updates are delivered. Updates may be
         // delivered sooner than this interval.
