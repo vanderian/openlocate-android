@@ -1,6 +1,7 @@
 package com.openlocate.android.core;
 
 import android.app.ActivityManager;
+import android.os.Build;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,9 +38,12 @@ public enum LocationContext {
 
 
     static boolean isForeground() {
-        ActivityManager.RunningAppProcessInfo appProcessInfo = new ActivityManager.RunningAppProcessInfo();
-        ActivityManager.getMyMemoryState(appProcessInfo);
-        return (appProcessInfo.importance == IMPORTANCE_FOREGROUND || appProcessInfo.importance == IMPORTANCE_VISIBLE);
+        if (Build.VERSION.SDK_INT >= 16) {
+            ActivityManager.RunningAppProcessInfo appProcessInfo = new ActivityManager.RunningAppProcessInfo();
+            ActivityManager.getMyMemoryState(appProcessInfo);
+            return (appProcessInfo.importance == IMPORTANCE_FOREGROUND || appProcessInfo.importance == IMPORTANCE_VISIBLE);
+        }
+        return false;
     }
 
     static LocationContext getLocationContext() {

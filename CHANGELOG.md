@@ -2,6 +2,12 @@
 
 `OpenLocate-Android` adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.2.0](https://github.com/OpenLocate/openlocate-ios/tag/1.2.0)
+
+#### Added
+
+- Ability to include OpenLocate in apps targeting Android API Level 15 or higher. Data collection will only work when running on device with API Level 19 or higher.
+
 ## [1.1.11](https://github.com/OpenLocate/openlocate-ios/tag/1.1.11)
 
 #### Fixed

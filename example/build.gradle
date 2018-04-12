@@ -39,7 +39,7 @@ android {
 
     defaultConfig {
         applicationId "com.openlocate.example"
-        minSdkVersion 19
+        minSdkVersion 15
         targetSdkVersion 26
         versionCode 3
         versionName "1.1"

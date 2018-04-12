@@ -1,6 +1,7 @@
 package com.openlocate.example;
 
 import android.app.Application;
+import android.os.Build;
 
 import com.openlocate.android.core.OpenLocate;
 
@@ -23,6 +24,8 @@ public class ExampleApplication extends Application {
                 .withoutDeviceModel()
                 .build();
 
-        OpenLocate.initialize(configuration);
+        if (Build.VERSION.SDK_INT >= 19) {
+            OpenLocate.initialize(configuration);
+        }
     }
 }

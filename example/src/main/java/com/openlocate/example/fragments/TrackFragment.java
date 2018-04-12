@@ -23,6 +23,7 @@
 package com.openlocate.example.fragments;
 
 import android.app.Activity;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -33,6 +34,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.openlocate.android.core.OpenLocate;
+import com.openlocate.example.BuildConfig;
 import com.openlocate.example.R;
 import com.openlocate.example.activities.MainActivity;
 
@@ -89,20 +91,26 @@ public class TrackFragment extends Fragment {
     }
 
     private void startTracking() {
-        OpenLocate.getInstance().startTracking(getActivity());
-        onTrackingStatusChange();
+        if (Build.VERSION.SDK_INT >= 19) {
+            OpenLocate.getInstance().startTracking(getActivity());
+            onTrackingStatusChange();
+        }
     }
 
     private void stopTracking() {
-        OpenLocate.getInstance().stopTracking();
-        onTrackingStatusChange();
+        if (Build.VERSION.SDK_INT >= 19) {
+            OpenLocate.getInstance().stopTracking();
+            onTrackingStatusChange();
+        }
     }
 
     private void onTrackingStatusChange() {
-        boolean enabled = OpenLocate.getInstance().isTracking();
+        if (Build.VERSION.SDK_INT >= 19) {
+            boolean enabled = OpenLocate.getInstance().isTracking();
 
-        startButton.setVisibility(enabled ? View.GONE : View.VISIBLE);
-        stopButton.setVisibility(enabled ? View.VISIBLE : View.GONE);
+            startButton.setVisibility(enabled ? View.GONE : View.VISIBLE);
+            stopButton.setVisibility(enabled ? View.VISIBLE : View.GONE);
+        }
     }
 
 }
