@@ -13,11 +13,6 @@
         android:label="@string/app_name"
         android:supportsRtl="true">
         <service
-            android:name="com.openlocate.android.core.LocationService"
-            android:enabled="true"
-            android:exported="true"
-            android:process=":LocationService"/>
-        <service
             android:name="com.openlocate.android.core.DispatchLocationService"
             android:enabled="true"
             android:exported="true"

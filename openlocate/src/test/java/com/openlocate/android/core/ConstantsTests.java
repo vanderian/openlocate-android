@@ -32,19 +32,7 @@ public class ConstantsTests {
     public void testConstantValues() {
         assertEquals(5*60, Constants.DEFAULT_LOCATION_INTERVAL_SEC);
         assertEquals(6*60*60, Constants.DEFAULT_TRANSMISSION_INTERVAL_SEC);
-        assertEquals(LocationAccuracy.HIGH, Constants.DEFAULT_LOCATION_ACCURACY);
-
-//        assertEquals("url", Constants.URL_KEY);
-//        assertEquals("header", Constants.HEADER_KEY);
-        assertEquals("location_accuracy", Constants.LOCATION_ACCURACY_KEY);
-        assertEquals("location_interval", Constants.LOCATION_INTERVAL_KEY);
-        assertEquals("transmission_interval", Constants.TRANSMISSION_INTERVAL_KEY);
-        assertEquals("advertising_id", Constants.ADVERTISING_ID_KEY);
-        assertEquals("limited_ad_tracking_enabled", Constants.LIMITED_AD_TRACKING_ENABLED_KEY);
-        assertEquals(-1, Constants.DEFAULT_PORT);
-        assertEquals("com.openlocate.android.core.Constants.LocationIntervalChanged", Constants.LOCATION_INTERVAL_CHANGED);
-        assertEquals("com.openlocate.android.core.Constants.LocationAccuracyChanged", Constants.LOCATION_ACCURACY_CHANGED);
-        assertEquals("com.openlocate.android.core.Constants.TransmissionIntervalChanged", Constants.TRANSMISSION_INTERVAL_CHANGED);
+        assertEquals(LocationAccuracy.MEDIUM, Constants.DEFAULT_LOCATION_ACCURACY);
     }
 
     @Test
