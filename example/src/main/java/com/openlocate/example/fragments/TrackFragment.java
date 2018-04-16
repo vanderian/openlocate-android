@@ -23,6 +23,8 @@
 package com.openlocate.example.fragments;
 
 import android.app.Activity;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -31,6 +33,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.openlocate.android.core.OpenLocate;
@@ -45,6 +48,7 @@ public class TrackFragment extends Fragment {
     private Activity activity;
     private Button startButton;
     private Button stopButton;
+    private TextView versionLabel;
 
     public static TrackFragment getInstance() {
         return new TrackFragment();
@@ -78,6 +82,9 @@ public class TrackFragment extends Fragment {
             }
         });
 
+        versionLabel = (TextView) view.findViewById(R.id.version_label);
+        configureVersionLabel();
+
         onTrackingStatusChange();
 
         return view;
@@ -110,6 +117,20 @@ public class TrackFragment extends Fragment {
 
             startButton.setVisibility(enabled ? View.GONE : View.VISIBLE);
             stopButton.setVisibility(enabled ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    private void configureVersionLabel() {
+        try {
+            PackageInfo packageInfo = activity.getPackageManager().getPackageInfo(activity.getPackageName(), 0);
+            String version = packageInfo.versionName;
+            int verCode = packageInfo.versionCode;
+
+            String sdkVersion = OpenLocate.getInstance().getClass().getPackage().getImplementationVersion();
+
+            versionLabel.setText("OpenLocate v" + version + "." + verCode + "\n SDK v" + sdkVersion);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
         }
     }
 
