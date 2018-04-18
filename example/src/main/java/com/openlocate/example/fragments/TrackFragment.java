@@ -126,9 +126,7 @@ public class TrackFragment extends Fragment {
             String version = packageInfo.versionName;
             int verCode = packageInfo.versionCode;
 
-            String sdkVersion = OpenLocate.getInstance().getClass().getPackage().getImplementationVersion();
-
-            versionLabel.setText("OpenLocate v" + version + "." + verCode + "\n SDK v" + sdkVersion);
+            versionLabel.setText("v" + version + "." + verCode);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }

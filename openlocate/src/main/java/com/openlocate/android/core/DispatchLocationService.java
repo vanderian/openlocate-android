@@ -149,7 +149,7 @@ final public class DispatchLocationService extends GcmTaskService {
         }
 
         return appName + "/" + appVersion + " (" + appPackageName + "; build:" + appVersionCode +
-                "; Android " + osVersion + "; " + deviceName + ") " + sdkVersion;
+                "; Android " + osVersion + "; " + deviceName + ") OpenLocate/" + sdkVersion;
     }
 
     public static String getApplicationName(Context context) {
