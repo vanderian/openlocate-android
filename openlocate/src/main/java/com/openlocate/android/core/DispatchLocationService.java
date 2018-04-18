@@ -21,13 +21,19 @@
  */
 package com.openlocate.android.core;
 
+import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteFullException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Build;
 import android.util.Log;
 
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.GcmTaskService;
 import com.google.android.gms.gcm.TaskParams;
+import com.openlocate.android.BuildConfig;
 
 import org.json.JSONException;
 
@@ -58,7 +64,7 @@ final public class DispatchLocationService extends GcmTaskService {
         }
 
         LocationDispatcher dispatcher = new LocationDispatcher();
-
+        String userAgent = getUserAgent(this);
         List<Long> timestamps = new ArrayList<>(endpoints.size());
         for (OpenLocate.Endpoint endpoint : endpoints) {
 
@@ -66,7 +72,7 @@ final public class DispatchLocationService extends GcmTaskService {
 
             try {
                 long timestamp = SharedPreferenceUtils.getInstance(this).getLongValue(key, 0);
-                List<OpenLocateLocation> sentLocations = dispatcher.postLocations(httpClient, endpoint, timestamp, dataSource);
+                List<OpenLocateLocation> sentLocations = dispatcher.postLocations(httpClient, endpoint, userAgent, timestamp, dataSource);
 
                 if (sentLocations != null && sentLocations.isEmpty() == false) {
                     long latestCreatedLocationDate = sentLocations.get(sentLocations.size() - 1).getCreated().getTime();
@@ -118,6 +124,38 @@ final public class DispatchLocationService extends GcmTaskService {
         }
 
         return in;
+    }
+
+    private String getUserAgent(Context context) {
+        String appName = getApplicationName(context);
+        String appVersion = "N/A";
+        int appVersionCode = 0;
+        String appPackageName;
+        String osVersion = android.os.Build.VERSION.RELEASE;
+        String deviceName = Build.MODEL;
+        String sdkVersion = BuildConfig.VERSION_NAME;
+
+        try {
+            PackageManager packageManager = context.getPackageManager();
+            appPackageName = context.getPackageName();
+            PackageInfo packageInfo = packageManager.getPackageInfo(appPackageName, 0);
+            if (packageInfo != null) {
+                appVersion = packageInfo.versionName;
+                appVersionCode = packageInfo.versionCode;
+            }
+        }
+        catch (PackageManager.NameNotFoundException e) {
+            return "OpenLocate";
+        }
+
+        return appName + "/" + appVersion + " (" + appPackageName + "; build:" + appVersionCode +
+                "; Android " + osVersion + "; " + deviceName + ") " + sdkVersion;
+    }
+
+    public static String getApplicationName(Context context) {
+        ApplicationInfo applicationInfo = context.getApplicationInfo();
+        int stringId = applicationInfo.labelRes;
+        return stringId == 0 ? applicationInfo.nonLocalizedLabel.toString() : context.getString(stringId);
     }
 
 }

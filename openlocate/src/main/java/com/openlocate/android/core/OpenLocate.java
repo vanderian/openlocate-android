@@ -23,8 +23,11 @@ package com.openlocate.android.core;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.provider.Settings;
@@ -36,13 +39,16 @@ import android.util.Log;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.openlocate.android.BuildConfig;
 import com.openlocate.android.exceptions.InvalidConfigurationException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -216,7 +222,7 @@ public class OpenLocate {
     public static final class Configuration implements Parcelable {
 
         Context context = null;
-        private ArrayList<Endpoint> endpoints;
+        private List<Endpoint> endpoints;
 
         private String serverUrl;
         private HashMap<String, String> headers;
@@ -238,7 +244,7 @@ public class OpenLocate {
         public static final class Builder {
             private Context context;
 
-            private ArrayList<Endpoint> endpoints;
+            private List<Endpoint> endpoints;
             private String serverUrl;
             private HashMap<String, String> headers;
 
@@ -256,14 +262,13 @@ public class OpenLocate {
             private boolean isLocationMethodCollectionDisabled;
             private boolean isLocationContextCollectionDisabled;
 
-            public Builder(Context context, ArrayList<Endpoint> endpoints) {
+            public Builder(Context context, List<Endpoint> endpoints) {
                 this.context = context.getApplicationContext();
                 this.endpoints = endpoints;
             }
 
             public Builder(Context context, String serverUrl) {
-                this.context = context.getApplicationContext();
-                this.serverUrl = serverUrl;
+                this(context, Arrays.asList(new Endpoint(serverUrl, null)));
             }
 
             public Builder setHeaders(HashMap<String, String> headers) {
@@ -332,16 +337,6 @@ public class OpenLocate {
             }
 
             public Configuration build() {
-                if (serverUrl != null) {
-                    Endpoint endpoint = new Endpoint(serverUrl, headers);
-
-                    if (endpoints == null) {
-                        endpoints = new ArrayList<>();
-                    }
-
-                    endpoints.add(endpoint);
-                }
-
                 return new Configuration(this);
             }
         }

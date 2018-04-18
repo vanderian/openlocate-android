@@ -16,7 +16,7 @@ ext {
     siteUrl = 'https://github.com/OpenLocate/openlocate-android'
     gitUrl = 'https://github.com/OpenLocate/openlocate-android.git'
 
-    libraryVersion = '1.2.0'
+    libraryVersion = '2.0.0'
 
     developerId = 'openlocate'
     developerName = 'OpenLocate'
@@ -45,7 +45,7 @@ android {
         minSdkVersion 15
         targetSdkVersion 26
         versionCode 1
-        versionName "1.0"
+        versionName "2.0.0"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true

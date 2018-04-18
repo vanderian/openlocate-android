@@ -145,7 +145,7 @@ final class OpenLocateHelper implements GoogleApiClient.ConnectionCallbacks,
                 .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
                 .setRequiresCharging(false)
                 .setPersisted(true)
-                .setUpdateCurrent(true)
+                .setUpdateCurrent(false)
                 .setTag(LOCATION_DISPATCH_TAG)
                 .build();
 

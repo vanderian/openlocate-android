@@ -21,12 +21,14 @@
  */
 package com.openlocate.android.core;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
 import java.util.List;
 
 final class LocationDispatcher {
@@ -34,7 +36,7 @@ final class LocationDispatcher {
     private static final String TAG = LocationDispatcher.class.getSimpleName();
     private static final String LOCATIONS_KEY = "locations";
 
-    List<OpenLocateLocation> postLocations(HttpClient httpClient, final OpenLocate.Endpoint endpoint, long sinceId, final LocationDataSource dataSource) {
+    List<OpenLocateLocation> postLocations(HttpClient httpClient, final OpenLocate.Endpoint endpoint, String userAgent, long sinceId, final LocationDataSource dataSource) {
         final List<OpenLocateLocation> locations = dataSource.getSince(sinceId);
 
         if (locations == null || locations.isEmpty()) {
@@ -46,7 +48,7 @@ final class LocationDispatcher {
         httpClient.post(
                 endpointUrl,
                 getLocationsParam(locations).toString(),
-                endpoint.getHeaders(),
+                getHeaders(endpoint, userAgent),
                 new HttpClientCallback() {
                     @Override
                     public void onCompletion(HttpRequest request, HttpResponse response) {
@@ -64,6 +66,18 @@ final class LocationDispatcher {
         dataSource.close();
 
         return locations;
+    }
+
+    @NonNull
+    private HashMap getHeaders(OpenLocate.Endpoint endpoint, String userAgent) {
+        HashMap headers = endpoint.getHeaders();
+        if (headers == null) {
+            headers = new HashMap();
+        }
+        if (headers.containsKey("User-Agent") == false) {
+            headers.put("User-Agent", userAgent);
+        }
+        return headers;
     }
 
     private JSONObject getLocationsParam(List<OpenLocateLocation> locationsToPost) {
