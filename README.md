@@ -74,7 +74,7 @@ repositories {
 Add the below line to your app's `build.gradle` inside the `dependencies` section:
 
 ```groovy
-compile 'com.openlocate:openlocate:1.+'
+compile 'com.openlocate:openlocate:2.+'
 ```
 
 ## Usage
@@ -101,7 +101,6 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
         
-      
         OpenLocate.Configuration config = new OpenLocate.Configuration.Builder(this, BuildConfig.URL)
             .setHeaders(<Your Headers>)
             .build();
