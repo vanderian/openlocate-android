@@ -56,6 +56,8 @@ class HttpTask extends AsyncTask<HttpRequest, Void, HttpResponse> {
             response = new HttpResponse.Builder()
                     .setStatusCode(connection.getResponseCode())
                     .build();
+
+            connection.disconnect();
         } catch (IOException e) {
             response = new HttpResponse.Builder()
                     .setError(new Error(e.getMessage()))
