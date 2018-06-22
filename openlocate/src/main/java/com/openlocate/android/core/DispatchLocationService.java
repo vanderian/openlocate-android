@@ -21,6 +21,7 @@
  */
 package com.openlocate.android.core;
 
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteFullException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -64,19 +65,20 @@ final public class DispatchLocationService extends GcmTaskService {
 
             String key = md5(endpoint.getUrl().toLowerCase());
 
+            SharedPreferences sp = getSharedPreferences("location_process", MODE_PRIVATE);
             try {
-                long timestamp = SharedPreferenceUtils.getInstance(this).getLongValue(key, 0);
+                long timestamp = sp.getLong(key, 0);
                 List<OpenLocateLocation> sentLocations = dispatcher.postLocations(httpClient, endpoint, timestamp, dataSource);
 
                 if (sentLocations != null && sentLocations.isEmpty() == false) {
                     long latestCreatedLocationDate = sentLocations.get(sentLocations.size() - 1).getCreated().getTime();
-                    SharedPreferenceUtils.getInstance(this).setValue(key, latestCreatedLocationDate);
+                    sp.edit().putLong(key, latestCreatedLocationDate).apply();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
-            timestamps.add(SharedPreferenceUtils.getInstance(this).getLongValue(key, 0));
+            timestamps.add(sp.getLong(key, 0));
         }
 
         Long min = Collections.min(timestamps);

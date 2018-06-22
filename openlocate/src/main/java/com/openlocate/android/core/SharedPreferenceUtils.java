@@ -32,12 +32,12 @@ public class SharedPreferenceUtils {
 
     public void setValue(String key, String value) {
         mSharedPreferencesEditor.putString(key, value);
-        mSharedPreferencesEditor.apply();
+        mSharedPreferencesEditor.commit();
     }
 
     public void setValue(String key, int value) {
         mSharedPreferencesEditor.putInt(key, value);
-        mSharedPreferencesEditor.apply();
+        mSharedPreferencesEditor.commit();
     }
 
     public void setValue(String key, double value) {
@@ -46,12 +46,12 @@ public class SharedPreferenceUtils {
 
     public void setValue(String key, long value) {
         mSharedPreferencesEditor.putLong(key, value);
-        mSharedPreferencesEditor.apply();
+        mSharedPreferencesEditor.commit();
     }
 
     public void setValue(String key, boolean value) {
         mSharedPreferencesEditor.putBoolean(key, value);
-        mSharedPreferencesEditor.apply();
+        mSharedPreferencesEditor.commit();
     }
 
     public String getStringValue(String key, String defaultValue) {
@@ -73,7 +73,7 @@ public class SharedPreferenceUtils {
     public void removeKey(String key) {
         if (mSharedPreferencesEditor != null) {
             mSharedPreferencesEditor.remove(key);
-            mSharedPreferencesEditor.apply();
+            mSharedPreferencesEditor.commit();
         }
     }
 
@@ -103,6 +103,6 @@ public class SharedPreferenceUtils {
     }
 
     public void clear() {
-        mSharedPreferencesEditor.clear().apply();
+        mSharedPreferencesEditor.clear().commit();
     }
 }

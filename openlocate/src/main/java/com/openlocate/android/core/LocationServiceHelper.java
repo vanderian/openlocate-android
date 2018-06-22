@@ -96,11 +96,11 @@ final class LocationServiceHelper {
     }
 
     private void setServiceStatusOnStart() {
-        SharedPreferenceUtils.getInstance(context).setValue(Constants.SERVICE_STATUS, true);
+//        SharedPreferenceUtils.getInstance(context).setValue(Constants.SERVICE_STATUS, true);
     }
 
     private void setServiceStatusOnStop() {
-        SharedPreferenceUtils.getInstance(context).setValue(Constants.SERVICE_STATUS, false);
+//        SharedPreferenceUtils.getInstance(context).setValue(Constants.SERVICE_STATUS, false);
     }
 
     void onDestroy() {
