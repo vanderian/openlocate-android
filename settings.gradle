@@ -1,1 +1,1 @@
-include ':openlocate', ':example'
+include ':openlocate'

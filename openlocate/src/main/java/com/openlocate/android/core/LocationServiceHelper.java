@@ -23,17 +23,16 @@ package com.openlocate.android.core;
 
 import android.app.AlarmManager;
 import android.app.Notification;
-import android.app.PendingIntent;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.sqlite.SQLiteFullException;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -385,7 +384,10 @@ final class LocationServiceHelper {
 
     @RequiresApi(26)
     private void startForeground() {
-        Notification notification = new Notification.Builder(context).build();
+        String channelId = "open-locate";
+        NotificationChannel channel = new NotificationChannel(channelId, "open locate service", NotificationManager.IMPORTANCE_NONE);
+        ((NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(channel);
+        Notification notification = new Notification.Builder(context, channelId ).build();
         ((LocationService) context).startForeground(FOREGROUND_SERVICE_TAG, notification);
     }
 
