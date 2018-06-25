@@ -654,6 +654,7 @@ public class OpenLocate implements OpenLocateLocationTracker {
         }
 
         try {
+            OpenLocate.getInstance().endpoints = configuration.endpoints;
             String endpoins = Endpoint.toJson(configuration.endpoints);
             SharedPreferenceUtils.getInstance(configuration.context).setValue(Constants.ENDPOINTS_KEY, endpoins);
 
