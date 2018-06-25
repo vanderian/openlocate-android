@@ -21,6 +21,7 @@
  */
 package com.openlocate.android.core;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteFullException;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -53,7 +54,8 @@ final public class DispatchLocationService extends GcmTaskService {
 
         List<OpenLocate.Endpoint> endpoints = null;
         try {
-            endpoints = OpenLocate.Endpoint.fromJson(taskParams.getExtras().getString(Constants.ENDPOINTS_KEY));
+//            endpoints = OpenLocate.Endpoint.fromJson(taskParams.getExtras().getString(Constants.ENDPOINTS_KEY));
+            endpoints = getEndpoints(this);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -61,11 +63,11 @@ final public class DispatchLocationService extends GcmTaskService {
         LocationDispatcher dispatcher = new LocationDispatcher();
 
         List<Long> timestamps = new ArrayList<>(endpoints.size());
+      SharedPreferences sp = getSharedPreferences("location_process", MODE_PRIVATE);
         for (OpenLocate.Endpoint endpoint : endpoints) {
 
             String key = md5(endpoint.getUrl().toLowerCase());
 
-            SharedPreferences sp = getSharedPreferences("location_process", MODE_PRIVATE);
             try {
                 long timestamp = sp.getLong(key, 0);
                 List<OpenLocateLocation> sentLocations = dispatcher.postLocations(httpClient, endpoint, timestamp, dataSource);
@@ -100,6 +102,12 @@ final public class DispatchLocationService extends GcmTaskService {
         }
 
         return GcmNetworkManager.RESULT_SUCCESS;
+    }
+
+    public static List<OpenLocate.Endpoint> getEndpoints(Context context) throws JSONException {
+        SharedPreferenceUtils preferences = SharedPreferenceUtils.getInstance(context);
+        String json = preferences.getStringValue(Constants.ENDPOINTS_KEY, "");
+        return OpenLocate.Endpoint.fromJson(json);
     }
 
     private String md5(String in) {
