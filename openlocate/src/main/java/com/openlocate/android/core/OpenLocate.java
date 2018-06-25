@@ -470,6 +470,7 @@ public class OpenLocate implements OpenLocateLocationTracker {
         if (sharedInstance == null) {
             sharedInstance = new OpenLocate(configuration);
         }
+        sharedInstance.endpoints = configuration.endpoints;
 
         boolean trackingEnabled = SharedPreferenceUtils.getInstance(configuration.context).getBoolanValue(Constants.TRACKING_STATUS, false);
 
@@ -654,7 +655,6 @@ public class OpenLocate implements OpenLocateLocationTracker {
         }
 
         try {
-            OpenLocate.getInstance().endpoints = configuration.endpoints;
             String endpoins = Endpoint.toJson(configuration.endpoints);
             SharedPreferenceUtils.getInstance(configuration.context).setValue(Constants.ENDPOINTS_KEY, endpoins);
 
