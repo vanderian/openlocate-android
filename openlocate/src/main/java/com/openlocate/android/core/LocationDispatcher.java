@@ -51,12 +51,14 @@ final class LocationDispatcher {
                     @Override
                     public void onCompletion(HttpRequest request, HttpResponse response) {
                         Log.i(TAG, "Successfully posted locations to " + endpointUrl);
+                        Log.d(TAG, "Request headers" + request.getAdditionalHeaders());
                     }
                 }, new HttpClientCallback() {
                     @Override
                     public void onCompletion(HttpRequest request, HttpResponse response) {
                         locations.clear();
                         Log.e(TAG, "Fail to post location to " + endpointUrl);
+                        Log.e(TAG, "Error " + response.getError().getMessage());
                     }
                 }
         );
